@@ -38,19 +38,20 @@ def main():
         </ul>
       </description>
     </release>\n'''.lstrip("\r\n")
-    tmp = ''
-
     regex = r"version ([\d.]+) \(([\w ]+)\)\n(.*?)[\n]{2}"
-    for match in re.findall(regex, changelog, re.MULTILINE | re.DOTALL):
-        tmp += tpl.format(
-            datetime.datetime.strptime(match[1], '%d %B %Y').strftime('%Y-%m-%d'),
+    tmp = ''.join(
+        tpl.format(
+            datetime.datetime.strptime(match[1], '%d %B %Y').strftime(
+                '%Y-%m-%d'
+            ),
             match[0],
             match[0],
             match[0],
             match[1],
-            re.sub(r'- (.*)', r'          <li>\1</li>', escape(match[2]))
+            re.sub(r'- (.*)', r'          <li>\1</li>', escape(match[2])),
         )
-
+        for match in re.findall(regex, changelog, re.MULTILINE | re.DOTALL)
+    )
     new_appdata = re.sub(r'<releases>(.*?)</releases>', r'<releases>\n' + tmp + '  </releases>',
         appdata,
         flags=re.MULTILINE | re.DOTALL

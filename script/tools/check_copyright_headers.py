@@ -99,21 +99,24 @@ def main():
 
             src_is_ok = False
 
-            if year_re_match:
-                if year_re_match.group(1) == f"{CURRENT_YEAR}":
-                    src_is_ok = True
-            elif yrng_re_match:
-                if yrng_re_match.group(2) == f"{CURRENT_YEAR}":
-                    src_is_ok = True
-
+            if (
+                year_re_match
+                and year_re_match[1] == f"{CURRENT_YEAR}"
+                or not year_re_match
+                and yrng_re_match
+                and yrng_re_match[2] == f"{CURRENT_YEAR}"
+            ):
+                src_is_ok = True
             if not src_is_ok:
                 if year_re_match:
-                    hdr = copyright_hdr_tmpl.replace("{Y1}", f"{year_re_match.group(1)}") \
-                                            .replace("{Y2}", f"{CURRENT_YEAR}")
+                    hdr = copyright_hdr_tmpl.replace(
+                        "{Y1}", f"{year_re_match[1]}"
+                    ).replace("{Y2}", f"{CURRENT_YEAR}")
                     src = copyright_hdr_year_re.sub(hdr, src)
                 elif yrng_re_match:
-                    hdr = copyright_hdr_tmpl.replace("{Y1}", f"{yrng_re_match.group(1)}") \
-                                            .replace("{Y2}", f"{CURRENT_YEAR}")
+                    hdr = copyright_hdr_tmpl.replace(
+                        "{Y1}", f"{yrng_re_match[1]}"
+                    ).replace("{Y2}", f"{CURRENT_YEAR}")
                     src = copyright_hdr_yrng_re.sub(hdr, src)
                 else:
                     src = copyright_hdr_full + "\n\n" + src.lstrip("\n")
@@ -121,13 +124,13 @@ def main():
                 if shebang:
                     src = shebang + "\n\n" + src
 
-                with open(file_name + ".tmp", "x", encoding="latin_1") as tmp_file:
+                with open(f"{file_name}.tmp", "x", encoding="latin_1") as tmp_file:
                     tmp_file.write(src)
 
-                with subprocess.Popen(["diff", "-u", file_name, file_name + ".tmp"]) as diff_proc:
+                with subprocess.Popen(["diff", "-u", file_name, f"{file_name}.tmp"]) as diff_proc:
                     diff_proc.wait()
 
-                os.remove(file_name + ".tmp")
+                os.remove(f"{file_name}.tmp")
 
 
 if __name__ == "__main__":
